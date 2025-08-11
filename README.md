@@ -1,136 +1,82 @@
-# 🧪 Prueba Técnica - Desarrollador Front-end
+# Funds App – Prueba técnica
 
-¡Gracias por tu interés en formar parte de nuestro equipo! Esta prueba técnica está diseñada para evaluar tus habilidades como desarrollador Front-end en aspectos como maquetación, consumo de APIs, buenas prácticas de código, y atención al detalle.
+Aplicación Frontend (React + TypeScript + Vite) que consume la API Express incluida en este repositorio para gestionar fondos: listar, comprar, ver cartera, vender y traspasar.
 
-## 🎯 Objetivo
+Se priorizó el tipado estricto y una arquitectura clara, con tests unitarios e integración selectivos para validar el flujo principal.
 
-La prueba consiste en desarrollar una solución en base a una propuesta inicial. No esperamos que se dedique una jornada completa a su realización; con aproximadamente 2 a 3 horas será suficiente para evaluar las capacidades principales.
+## Cómo ejecutar
 
-Esta prueba **no esta pensada para que sea terminada en el tiempo que indicamos**, solo queremos valorar tus conocimientos y aptitudes.
+Requisitos: Node 24.x y npm.
 
-## 🧰 Requisitos técnicos
+- Desarrollo (API + Web):
+  - `npm install`
+  - `npm run dev`
+  - Web: `http://localhost:5173` (la API bajo `/api/*` hacia `http://127.0.0.1:3000`).
+- Build y preview:
+  - `npm run build`
+  - `npm run preview`
+- Tests:
+  - `npm test`
 
-- Utilizar **React** (con o sin frameworks como Next.js, Vite, etc.)
-- En cuanto a los estilos, puedes utilizar la tecnología o herramienta con la que te sientas más cómodo/a: CSS, SASS, Styled-components, Vanilla-extract, entre otros.
-- Uso de **JavaScript moderno (ES6+)**
-- Se valorará positivamente el uso de TypeScript.
-- Manejo de estado (React Hooks, Context API, etc.)
-- Consumo de una API pública (por ejemplo: [https://jsonplaceholder.typicode.com](https://jsonplaceholder.typicode.com), [https://pokeapi.co](https://pokeapi.co), etc.)
-- Diseño responsive (mobile-first)
-- Código limpio y bien estructurado
-- Añadir tests, ya sean unitarios o de extremo a extremo (E2E), también será considerada como un punto a favor.
+## Arquitectura del proyecto
 
-## ✅ Criterios de evaluación
+```
+src/
+  app/                 # Providers (ApiContext), Router
+  components/ui/       # Primitivas de UI (Button, Input, Table, Dialog, Select)
+  features/
+    funds/             # Listado de fondos, paginación, ordenación
+    portfolio/         # Vista de cartera
+    orders/            # Dialog reutilizable (comprar, vender, traspasar)
+  shared/
+    api/               # httpClient y servicios (fundsService, portfolioService)
+    types/             # Tipos de dominio (Fund, Portfolio)
+    utils/             # currency, validators
+```
 
-- Organización y legibilidad del código
-- Uso adecuado de componentes
-- Manejo de estados y efectos
-- Buenas prácticas de desarrollo (semántica, accesibilidad, etc.)
-- Diseño responsive y visual atractivo
-- Funcionamiento general de la app
-- Uso de control de versiones (Git)
+### Decisiones técnicas y justificación
+- Vite en vez de Webpack: menor configuración, HMR más veloz, build con Rollup y buena integración con Vitest.
+- TypeScript estricto: favorece seguridad y DX;
+- Context API: suficiente para el alcance (inyección de `httpClient` y estado global de órdenes). Evitamos Redux para mantener simplicidad.
+- MSW: mocks deterministas de la API en tests, sin depender del servidor real.
+- styled-components: estilos por componente, sin inline styles, mejorando mantenibilidad.
 
-## 📦 Entregables
+### Capa de datos
+- `ApiContext` inyecta un `httpClient` basado en `fetch` (DIP) y los servicios lo consumen.
+- Servicios:
+  - `fundsService`: list, detail, buy, sell, transfer
+  - `portfolioService`: get
+- En dev, Vite proxyfía `/api/*` al servidor Express.
 
-1. Un repositorio en GitHub (público o privado con acceso compartido)
-2. Un archivo `README.md` explicando:
+## Funcionalidades implementadas
+- Listado de fondos con paginación y ordenación accesible (`aria-sort`).
+- Compra con validaciones (> 0 y ≤ 10.000) en diálogo `<dialog>` con fallback.
+- Cartera ordenada alfabéticamente y refresco automático tras órdenes.
+- Venta con validación (> 0 y ≤ posición).
+- Traspaso: selección de fondo destino (excluye origen) y validaciones correspondientes.
 
-   - Cómo correr el proyecto localmente
-   - Decisiones técnicas tomadas
-   - Funcionalidades implementadas
-   - Qué mejorarías si tuvieras más tiempo
+## Tests
+- Unitarios: utilidades de validación y formateo, servicios y helpers.
+- Integración: flujos clave (compra), ordenación en listados.
+- MSW: handlers por endpoint para tests rápidos y deterministas.
 
-## 🕒 Tiempo estimado
+## Endpoints utilizados (resumen)
+- GET `/api/funds?page=1&limit=10`
+- GET `/api/funds/:id`
+- POST `/api/funds/:id/buy` { quantity }
+- POST `/api/funds/:id/sell` { quantity }
+- POST `/api/funds/transfer` { fromFundId, toFundId, quantity }
+- GET `/api/portfolio`
 
-Recomendamos no dedicar más de **2-3 horas** en total. Valoramos más la calidad del trabajo y el enfoque en los detalles que una solución completa.
+## Mejoras pendientes por falta de tiempo
+- Más cobertura de tests de integración (vender/traspasar end-to-end) y E2E (Playwright).
+- Aliases de paths (`@/*`) y un archivo centralizado de constantes (límites, rutas, mensajes).
+- Precommit con husky + lint-staged para lint, type-check y prettier automáticos.
+- UX/A11y:
+  - Toasters globales de feedback y manejo de errores unificado.
+  - Mejor focus management y trap para `<dialog>`.
+  - Skeletons/empty states más ricos y mensajes de error consistentes.
+- Responsive/mobile: pulir tablas en móviles (scroll-snap, columnas prioritarias) y mejorar spacing.
+- Cache de datos (SWR/React Query) si el dominio crece.
+- CI (lint/test).
 
-## 💡 Tips
-
-- Usa commits claros y descriptivos
-- No te preocupes por usar un diseño perfecto; enfócate en la funcionalidad y orden del código
-- Si usas librerías externas, justifica su uso
-
-## ⚙️ Setup
-
-- Node ^24.5.0
-- Yarn o NPM
-
-## 📖 Recursos proporcionados:
-
-Facilitamos una API con varios endpoints que podrás utilizar para completar la prueba.
-Puedes ver más información en este fichero [API.md](./API.md)
-
-## 📝 Tareas
-
-- Listado de fondos
-- Acción de comprar un fondo
-- Detalle de la cartera
-- Acción de vender un fondo
-- Acción de traspasar un fondo
-
-El orden de la ejecución de las tareas es importante.
-
-### Listado de fondos
-
-Genera un tabla en la que se muestren todos los fondos, similar a la que aparece en la imagen (No es necesario mostrar todas las columnas). Añadir la acciones que se pueden realizar para cada item.
-
-![list](./public/fund-list.png)
-
-![list actions](./public/fund-list-actions.png)
-
-💡 Bonus:
-
-- Paginación
-- Paginación
-- Ordenación de elementos al hacer click en la cabecera (ASC, DESC)
-- Diseño responsive
-
-### Acción de comprar
-
-Añadir la posibilidad de realizar una compra de un fondo desde el listado. En este caso no hay diseño, pero recomendamos hacer algo sencillo, pero que funcione.
-
-💡 Bonus:
-
-- Validación de formularios:
-    - No poder realizar compras superiores a 10.000 €
-    - No poder realizar compras con valores negativos
-- Uso de la etiqueta [dialog](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/dialog) de HTML
-- Añadir un componente "input" que formateé la cantidad introducida. Por ejemplo "10,55 €".
-
-
-### Detalle de la cartera
-
-Generar una sección o pantalla, en la que se muestren todas la posiciones que tiene el usuario, similar a la que aparece en la imagen. Solo es necesario añadir el contenido de la pestaña "Fondos". Añadir la acciones que se pueden realizar para cada item.
-
-![portfolio](./public/portfolio-desktop.png)
-
-![portfolio action](./public/portfolio-desktop-actions.png)
-
-💡 Bonus:
-- Ordenación por orden alfabetico
-- Categorización por tipo de fondo
-- Diseño responsive
-- Añadir acciones en movil con "Swipe" en cada uno de los item ([iamge](./public/portfolio-mobile-actions.png))
-- Añadir un historico de ordenes al hacer click en la pestaña "Órdenes"
-
-### Acción de vender
-
-Añadir la posibilidad de realizar una venta de un fondo desde el listado.
-
-💡 Bonus:
-
-- Validación de formularios:
-    - Limitar la venta por una cantidad superior a la posición
-    - No poder realizar ventas con valores negativos
-
-## Acción de traspasar
-
-Añadir la posibilidad de realizar una traspaso entre fondos.
-
-💡 Bonus:
-
-- Validación de formularios:
-    - Limitar el traspaso por una cantidad superior a la posición
-    - No poder realizar traspasos con valores negativos
-    - No se puede traspasar al mismo fondo
-    - Solo se debe permitir traspasar entre fondos ya comprados.
