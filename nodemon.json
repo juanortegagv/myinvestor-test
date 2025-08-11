@@ -6,5 +6,5 @@
     "ignore": [
         "dist/**/*"
     ],
-    "exec": "ts-node server/app.ts"
+    "exec": "node --loader ts-node/esm server/app.ts"
 }

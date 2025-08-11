@@ -1,11 +1,29 @@
-import type { PropsWithChildren } from 'react';
+import type {
+  PropsWithChildren,
+  HTMLAttributes,
+  ThHTMLAttributes,
+  TdHTMLAttributes,
+  TableHTMLAttributes,
+} from 'react';
 import { Tbl, Thead, Tbody, Tr, Th, Td } from './Table/styles.ts';
 
-export const Table = ({ children }: PropsWithChildren) => <Tbl>{children}</Tbl>;
-export const THead = ({ children }: PropsWithChildren) => <Thead>{children}</Thead>;
-export const TBody = ({ children }: PropsWithChildren) => <Tbody>{children}</Tbody>;
-export const TR = ({ children }: PropsWithChildren) => <Tr>{children}</Tr>;
-export const TH = ({ children }: PropsWithChildren) => <Th>{children}</Th>;
-export const TD = ({ children }: PropsWithChildren) => <Td>{children}</Td>;
+export const Table = ({ children, ...rest }: PropsWithChildren<TableHTMLAttributes<HTMLTableElement>>) => (
+  <Tbl {...rest}>{children}</Tbl>
+);
+export const THead = ({ children, ...rest }: PropsWithChildren<HTMLAttributes<HTMLTableSectionElement>>) => (
+  <Thead {...rest}>{children}</Thead>
+);
+export const TBody = ({ children, ...rest }: PropsWithChildren<HTMLAttributes<HTMLTableSectionElement>>) => (
+  <Tbody {...rest}>{children}</Tbody>
+);
+export const TR = ({ children, ...rest }: PropsWithChildren<HTMLAttributes<HTMLTableRowElement>>) => (
+  <Tr {...rest}>{children}</Tr>
+);
+export const TH = ({ children, ...rest }: PropsWithChildren<ThHTMLAttributes<HTMLTableCellElement>>) => (
+  <Th {...rest}>{children}</Th>
+);
+export const TD = ({ children, ...rest }: PropsWithChildren<TdHTMLAttributes<HTMLTableCellElement>>) => (
+  <Td {...rest}>{children}</Td>
+);
 
 

@@ -1,26 +1,27 @@
-import { useState } from 'react';
-import Button from '../../components/ui/Button.tsx';
-import Input from '../../components/ui/Input.tsx';
-import Dialog from '../../components/ui/Dialog.tsx';
-import MoneyInput from '../../components/MoneyInput.tsx';
+import { useFunds } from './hooks/useFunds.ts';
+import FundListTable from './components/FundListTable.tsx';
+import Pagination from './components/Pagination.tsx';
 
 const FundsPage = () => {
-  const [open, setOpen] = useState(false);
-  const [amount, setAmount] = useState(0);
+  const { data, loading, error, page, setPage, pagination, sortKey, sortOrder, toggleSort } = useFunds();
 
   return (
     <section>
       <h2>Listado de fondos</h2>
-      <p>Preview de UI primitives:</p>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-        <Input placeholder="Buscar" aria-label="Buscar" />
-        <MoneyInput value={amount} onChange={setAmount} />
-        <Button onClick={() => setOpen(true)}>Abrir diálogo</Button>
-      </div>
-      <Dialog open={open} onClose={() => setOpen(false)} title="Diálogo de ejemplo">
-        <p>Cantidad: {amount}</p>
-        <Button onClick={() => setOpen(false)}>Cerrar</Button>
-      </Dialog>
+      {loading && <p>Loading...</p>}
+      {error && <p role="alert">{error}</p>}
+      {!loading && !error && data.length === 0 && <p>No hay resultados</p>}
+      {!loading && !error && data.length > 0 && (
+        <>
+          <FundListTable rows={data} sortKey={sortKey} sortOrder={sortOrder} onSort={toggleSort} />
+          <Pagination
+            page={page}
+            totalPages={pagination?.totalPages}
+            onPrev={() => setPage(page - 1)}
+            onNext={() => setPage(page + 1)}
+          />
+        </>
+      )}
     </section>
   );
 };

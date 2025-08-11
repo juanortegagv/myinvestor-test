@@ -6,8 +6,12 @@
   "main": "dist/app.js",
   "type": "module",
   "scripts": {
-    "start": "node --watch 'server/app.ts'",
-    "dev": "vite",
+    "start": "concurrently -n api,web -c \"magenta,cyan\" \"npm:start:api\" \"npm:start:client\"",
+    "start:api": "node --loader ts-node/esm server/app.ts",
+    "start:client": "vite",
+    "dev": "concurrently -n api,web -c \"magenta,cyan\" \"npm:dev:api\" \"npm:dev:client\"",
+    "dev:api": "nodemon --exec \"node --loader ts-node/esm\" --watch server --ext ts server/app.ts",
+    "dev:client": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview --port 5173",
     "test": "vitest run",
@@ -44,6 +48,8 @@
     "@vitejs/plugin-react": "^4.3.1",
     "jsdom": "^25.0.1",
     "msw": "^2.6.9",
+    "concurrently": "^9.0.1",
+    "nodemon": "^3.1.7",
     "vitest": "^2.1.4",
     "vite": "^5.4.0",
     "vite-plugin-checker": "^0.7.2"
