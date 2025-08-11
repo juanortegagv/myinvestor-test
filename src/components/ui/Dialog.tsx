@@ -8,8 +8,14 @@ const Dialog = ({ open, onClose, title, children }: DialogProps) => {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (open && !el.open) el.showModal();
-    if (!open && el.open) el.close();
+    // Always reflect state for environments without <dialog> methods (e.g., jsdom)
+    if (open) {
+      el.setAttribute('open', '');
+      if (typeof (el as any).showModal === 'function' && !el.open) (el as any).showModal();
+    } else {
+      el.removeAttribute('open');
+      if (typeof (el as any).close === 'function' && el.open) el.close();
+    }
   }, [open]);
 
   return (
