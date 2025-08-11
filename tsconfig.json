@@ -4,7 +4,7 @@
     // File Layout
     // "rootDir": "./server",
     "outDir": "./dist",
-
+    "forceConsistentCasingInFileNames": true,
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "module": "esnext",

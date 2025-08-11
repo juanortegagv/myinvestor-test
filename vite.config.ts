@@ -7,8 +7,8 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/funds': 'http://localhost:3000',
-      '/portfolio': 'http://localhost:3000'
+      '/funds': { target: 'http://127.0.0.1:3000', changeOrigin: true },
+      '/portfolio': { target: 'http://127.0.0.1:3000', changeOrigin: true },
     }
   }
 });
