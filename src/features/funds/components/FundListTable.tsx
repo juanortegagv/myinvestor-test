@@ -2,6 +2,7 @@ import { Table, THead, TBody, TR, TH, TD } from '../../../components/ui/Table.ts
 import type { Fund } from '../../../shared/types/fund.ts';
 import type { SortKey, SortOrder } from '../hooks/useFunds.ts';
 import FundActions from './FundActions.tsx';
+import { SortButton, Arrow } from './FundListTable.styles.ts';
 
 type Props = Readonly<{
   rows: ReadonlyArray<Fund>;
@@ -20,15 +21,21 @@ const FundListTable = ({ rows, sortKey, sortOrder, onSort, onBuy }: Props) => {
       <THead>
         <TR>
           <TH role="columnheader" aria-sort={ariaFor('name')}>
-            <button type="button" onClick={() => onSort('name')}>Nombre</button>
+            <SortButton type="button" onClick={() => onSort('name')}>
+              Nombre <Arrow $state={ariaFor('name') as any} />
+            </SortButton>
           </TH>
           <TH>Símbolo</TH>
           <TH>Categoría</TH>
           <TH role="columnheader" aria-sort={ariaFor('value')}>
-            <button type="button" onClick={() => onSort('value')}>Valor</button>
+            <SortButton type="button" onClick={() => onSort('value')}>
+              Valor <Arrow $state={ariaFor('value') as any} />
+            </SortButton>
           </TH>
           <TH role="columnheader" aria-sort={ariaFor('profitability.YTD')}>
-            <button type="button" onClick={() => onSort('profitability.YTD')}>YTD</button>
+            <SortButton type="button" onClick={() => onSort('profitability.YTD')}>
+              YTD <Arrow $state={ariaFor('profitability.YTD') as any} />
+            </SortButton>
           </TH>
           <TH>Acciones</TH>
         </TR>

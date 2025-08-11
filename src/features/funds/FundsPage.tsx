@@ -1,14 +1,11 @@
-import { useState } from 'react';
 import { useFunds } from './hooks/useFunds.ts';
 import FundListTable from './components/FundListTable.tsx';
 import Pagination from './components/Pagination.tsx';
-import OrderDialog from '../orders/OrderDialog.tsx';
-import type { Fund } from '../../shared/types/fund.ts';
+import { useOrders } from '../orders/OrdersContext.tsx';
 
 const FundsPage = () => {
   const { data, loading, error, page, setPage, pagination, sortKey, sortOrder, toggleSort } = useFunds();
-  const [selected, setSelected] = useState<Fund | null>(null);
-  const [open, setOpen] = useState(false);
+  const { openBuy } = useOrders();
 
   return (
     <section>
@@ -23,10 +20,7 @@ const FundsPage = () => {
             sortKey={sortKey}
             sortOrder={sortOrder}
             onSort={toggleSort}
-            onBuy={(fund) => {
-              setSelected(fund);
-              setOpen(true);
-            }}
+            onBuy={(fund) => openBuy(fund)}
           />
           <Pagination
             page={page}
@@ -36,7 +30,6 @@ const FundsPage = () => {
           />
         </>
       )}
-      <OrderDialog open={open} fund={selected} onClose={() => setOpen(false)} />
     </section>
   );
 };

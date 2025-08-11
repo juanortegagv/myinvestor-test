@@ -1,30 +1,26 @@
-import { useEffect, useRef, type PropsWithChildren } from 'react';
+import { useEffect, useMemo, useRef, type PropsWithChildren } from 'react';
+import { supportsNativeDialog, setDialogOpenState } from './dialogUtils.ts';
+import { StyledDialog, DialogBody } from './Dialog.styles.ts';
 
 type DialogProps = PropsWithChildren<Readonly<{ open: boolean; onClose: () => void; title?: string }>>;
 
 const Dialog = ({ open, onClose, title, children }: DialogProps) => {
   const ref = useRef<HTMLDialogElement>(null);
+  const fallback = useMemo(() => !supportsNativeDialog(), []);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    // Always reflect state for environments without <dialog> methods (e.g., jsdom)
-    if (open) {
-      el.setAttribute('open', '');
-      if (typeof (el as any).showModal === 'function' && !el.open) (el as any).showModal();
-    } else {
-      el.removeAttribute('open');
-      if (typeof (el as any).close === 'function' && el.open) el.close();
-    }
-  }, [open]);
+    setDialogOpenState(el, open, !fallback);
+  }, [open, fallback]);
 
   return (
-    <dialog ref={ref} onClose={onClose} style={{ padding: 0, border: 0, borderRadius: 8 }}>
-      <div style={{ padding: 16, minWidth: 320 }}>
+    <StyledDialog ref={ref} onClose={onClose} $fallback={fallback}>
+      <DialogBody>
         {title ? <h3>{title}</h3> : null}
         {children}
-      </div>
-    </dialog>
+      </DialogBody>
+    </StyledDialog>
   );
 };
 

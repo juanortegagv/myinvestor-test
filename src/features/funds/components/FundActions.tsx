@@ -1,11 +1,11 @@
 import type { Fund } from '../../../shared/types/fund.ts';
-import { Actions } from './FundActions/styles.ts';
+import { Actions, BuyButton } from './FundActions/styles.ts';
 
 type Props = Readonly<{ fund: Fund; onBuy: (fund: Fund) => void }>;
 
 const FundActions = ({ fund, onBuy }: Props) => (
   <Actions>
-    <button type="button" onClick={() => onBuy(fund)}>Comprar</button>
+    <BuyButton type="button" onClick={() => onBuy(fund)}>Comprar</BuyButton>
   </Actions>
 );
 

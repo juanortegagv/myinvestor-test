@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useApi } from '../../../app/ApiContext.tsx';
 import { createPortfolioService } from '../../../shared/api/portfolioService.ts';
 import type { PortfolioPosition } from '../../../shared/types/portfolio.ts';
+import { useOrders } from '../../orders/OrdersContext.tsx';
 
 export const usePortfolio = () => {
   const { http } = useApi();
@@ -10,6 +11,8 @@ export const usePortfolio = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [positions, setPositions] = useState<ReadonlyArray<PortfolioPosition>>([]);
+
+  const { refreshToken } = useOrders();
 
   useEffect(() => {
     let cancelled = false;
@@ -33,7 +36,7 @@ export const usePortfolio = () => {
     return () => {
       cancelled = true;
     };
-  }, [service]);
+  }, [service, refreshToken]);
 
   return { loading, error, positions } as const;
 };

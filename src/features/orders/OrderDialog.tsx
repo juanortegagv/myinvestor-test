@@ -1,71 +1,82 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import Dialog from '../../components/ui/Dialog.tsx';
 import MoneyInput from '../../components/MoneyInput.tsx';
 import Button from '../../components/ui/Button.tsx';
 import type { Fund } from '../../shared/types/fund.ts';
-import { validateBuy } from '../../shared/utils/validators.ts';
 import { useApi } from '../../app/ApiContext.tsx';
 import { createFundsService } from '../../shared/api/fundsService.ts';
+import { Grid, Row, Actions } from './OrderDialog.styles.ts';
+import type { PortfolioPosition } from '../../shared/types/portfolio.ts';
+import { useOrders } from './OrdersContext.tsx';
+import { getOrderTitle } from './utils.ts';
+import Select from '../../components/ui/Select.tsx';
+import { usePortfolio } from '../portfolio/hooks/usePortfolio.ts';
 
 type Props = Readonly<{
   open: boolean;
   fund: Fund | null;
+  fromPosition?: PortfolioPosition | null;
+  mode?: 'buy' | 'sell' | 'transfer';
   onClose: () => void;
 }>;
 
-const OrderDialog = ({ open, fund, onClose }: Props) => {
+const OrderDialog = ({ open, fund, fromPosition = null, mode = 'buy', onClose }: Props) => {
   const { http } = useApi();
   const service = useMemo(() => createFundsService(http), [http]);
-  const [amount, setAmount] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState<string | null>(null);
+  const { amount, setAmount, submitting, error, success, submit, toFundId, setToFundId } =
+    useOrders();
+  const { positions } = usePortfolio();
+  const transferOptions =
+    mode === 'transfer' ? positions.filter((p) => !fromPosition || p.id !== fromPosition.id) : [];
 
   const handleSubmit = async () => {
-    if (!fund) return;
-    const v = validateBuy(amount);
-    if (v) {
-      setError(v);
-      return;
-    }
-    setError(null);
-    setSubmitting(true);
-    setSuccess(null);
-    try {
-      await service.buy(fund.id, amount);
-      setSuccess('Compra realizada');
-      onClose();
-    } catch (e) {
-      setError((e as Error).message ?? 'Error al comprar');
-    } finally {
-      setSubmitting(false);
-    }
+    await submit();
   };
 
   return (
-    <Dialog open={open} onClose={onClose} title={fund ? `Comprar ${fund.name}` : 'Comprar'}>
-      <div style={{ display: 'grid', gap: 12 }}>
+    <Dialog open={open} onClose={onClose} title={getOrderTitle(mode, fund, fromPosition)}>
+      <Grid>
         <label htmlFor="qty">Cantidad</label>
-        <MoneyInput id="qty" value={amount} onChange={setAmount} currency={fund?.currency ?? 'EUR'} />
+        <Row>
+          <MoneyInput
+            id="qty"
+            value={amount}
+            onChange={setAmount}
+            currency={fund?.currency ?? 'EUR'}
+          />
+        </Row>
+        {mode === 'transfer' ? (
+          <>
+            <label htmlFor="to">Fondo destino</label>
+            <Select id="to" value={toFundId ?? ''} onChange={(e) => setToFundId(e.target.value)}>
+              <option value="" disabled>
+                Selecciona un fondo
+              </option>
+              {transferOptions.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} (ID: {p.id})
+                </option>
+              ))}
+            </Select>
+          </>
+        ) : null}
         {error ? (
           <p role="alert" style={{ color: 'crimson' }}>
             {error}
           </p>
         ) : null}
         {success ? <p style={{ color: 'green' }}>{success}</p> : null}
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+        <Actions>
           <Button variant="ghost" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
             Confirmar
           </Button>
-        </div>
-      </div>
+        </Actions>
+      </Grid>
     </Dialog>
   );
 };
 
 export default OrderDialog;
-
-

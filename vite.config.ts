@@ -10,8 +10,11 @@ export default defineConfig({
   server: {
     port: 5173,
     proxy: {
-      '/funds': { target: 'http://127.0.0.1:3000', changeOrigin: true },
-      '/portfolio': { target: 'http://127.0.0.1:3000', changeOrigin: true },
+      '/api': {
+        target: 'http://127.0.0.1:3000',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api/, ''),
+      }
     }
   }
 });
